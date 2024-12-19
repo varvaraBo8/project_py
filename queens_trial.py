@@ -1,34 +1,45 @@
-from urllib.request import urlopen 
-import certifi
-import ssl
+# Extracting Data using Beautifulsoup + Requests
 
-context = ssl.create_default_context(cafile=certifi.where())
+# Project Scope:
+'''
+Top Business School Data
+- Entrance Average
+- Required / Recommended Classes
+- Application Deadlines
 
+BeautifulSoup + Request integration
+'''
+# END OF PROJECT Scope
+
+# import statements
+from bs4 import BeautifulSoup # Install command: python3 -m pip install beautifulsoup4
+import requests # Install command: python3 -m pip install requests
+# END OF IMPORTS
+
+# URL to scrape data from Quene's website
 url = "https://www.queensu.ca/admission/applying/competitive-average"
-page = urlopen(url, context=context)
 
-html_bytes = page.read()
-html = html_bytes.decode("utf-8")
-print(html)
+# Send a GET request to the URL
+response = requests.get(url)
 
-start_index = html.find("<Smith School of Buisness COmmerce (QC)>")
-print("smith index", start_index)
+'''
+How to start our data collection:
+1. Inspect the each university's website and see how the information is stored
+    Example: Queen's info was stored in a table tag (https://www.w3schools.com/html/html_tables.asp)
 
-#if range != -1:
-if True:
-#this creates a condition for the search operation i made here
-    acceptance_start = html.find("High School Percentage Grade")
-    #this is going to look for a string in html and returns the postion of the string 
-    print(acceptance_start)
-    if acceptance_start != -1:
-    #if its not out of range it will look for the acceptance rate of the school 
-        acceptance_end = html.find("<", acceptance_start)
-        acceptance_rate = html[acceptance_start:acceptance_end]    
-        print(f"Smith school acceptnce: {acceptance_rate}")
-    
-    else:
-        print("womp womp")
+2. target the data by trying the .find_all method.
+'''
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the HTML content of the page
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    # Extract the relevant data (for example, all text within table tags)
+    data = soup.find_all('table')
+
+    # Print the extracted data
+    for paragraph in data:
+        print(paragraph.get_text())
 else:
-    print("boooooooooo")
-#if the very first condition is not true then this will display on the screen
-
+    print("Failed to retrieve the webpage. Status code:", response.status_code)
